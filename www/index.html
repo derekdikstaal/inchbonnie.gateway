@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Gateway</title>
+
+  <link rel="stylesheet" href="onsenui/onsenui.css" />
+  <link rel="stylesheet" href="onsenui/onsenui-components.css" />
+
+  <script src="onsenui/onsenui.js"></script>
+  <script src="cordova.js"></script>
+  <script src="js/index.js" defer></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --muted: #6b7280;
+      --success: #16a34a;
+      --danger: #dc2626;
+    }
+
+    body,
+    .page__background {
+      background: var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .toolbar {
+      background: var(--primary);
+    }
+
+    .toolbar__title,
+    .toolbar .center {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .tabbar__label {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .content-wrap {
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+
+    .field-label {
+      display: block;
+      margin: 14px 0 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .input-field {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      background: #ffffff;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .gateway-button {
+      border: 0;
+      border-radius: 10px;
+      padding: 13px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+      background: var(--primary);
+      width: 100%;
+    }
+
+    .gateway-button.success {
+      background: var(--success);
+    }
+
+    .gateway-button.danger {
+      background: var(--danger);
+    }
+
+    .about-heading {
+      font-size: 20px;
+      font-weight: 900;
+      margin: 0 0 8px;
+    }
+
+    .about-subheading {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 22px 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <ons-page>
+    <ons-toolbar>
+      <div class="center">IHS Gateway Setup</div>
+    </ons-toolbar>
+
+    <ons-tabbar swipeable position="bottom">
+      <ons-tab page="settings.html" label="Settings" active></ons-tab>
+      <ons-tab page="about.html" label="About"></ons-tab>
+    </ons-tabbar>
+  </ons-page>
+
+  <template id="settings.html">
+    <ons-page id="settingsPage">
+      <div class="content-wrap">
+	  
+        <section class="card">
+          <h2 class="card-title">Service</h2>
+          <p class="note">Start or stop the local HTTP gateway service.</p>
+
+
+          <div class="button-row">
+            <button id="serviceToggleButton" class="gateway-button success" data-action="toggle-service">Start Service</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Permissions</h2>
+          <p class="note">Permissions are requested when the app starts. Use Check Permissions to request anything still missing.</p>
+
+          <div class="button-row">
+            <button id="check-permissions" class="gateway-button" data-action="check-permissions">Check Permissions</button>
+          </div>
+        </section>
+
+      </div>
+    </ons-page>
+  </template>
+
+  <template id="about.html">
+    <ons-page id="aboutPage">
+      <div class="content-wrap">
+        <section class="card">
+          <h1 class="about-heading">About IHS Gateway</h1>
+          <p class="note">Add your app description here.</p>
+
+          <h2 class="about-subheading">Purpose</h2>
+          <p>Add content here.</p>
+
+          <h2 class="about-subheading">How It Works</h2>
+          <p>Add content here.</p>
+
+          <h2 class="about-subheading">Permissions</h2>
+          <p>Add content here.</p>
+
+          <h2 class="about-subheading">Version</h2>
+          <p>1.0.0</p>
+        </section>
+      </div>
+    </ons-page>
+  </template>
+</body>
+</html>

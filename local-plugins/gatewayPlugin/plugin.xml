@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.dikstaal.gateway"
+    version="1.0.0">
+
+    <name>GatewayPlugin</name>
+    <description>Java HTTP/SMS/email gateway Cordova plugin</description>
+    <license>MIT</license>
+
+    <js-module src="www/GatewayPlugin.js" name="GatewayPlugin">
+        <clobbers target="cordova.plugins.GatewayPlugin" />
+    </js-module>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="GatewayPlugin">
+                <param name="android-package" value="com.dikstaal.gateway.GatewayPlugin" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.SEND_SMS" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+            <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+            <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service
+                android:name="com.dikstaal.gateway.GatewayService"
+                android:enabled="true"
+                android:exported="false"
+                android:foregroundServiceType="dataSync" />
+            <receiver
+                android:name="com.dikstaal.gateway.BootReceiver"
+                android:enabled="true"
+                android:exported="true">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                </intent-filter>
+            </receiver>
+        </config-file>
+
+        <preference name="ANDROIDX_CORE_VERSION" default="1.12.0" />
+        <framework src="androidx.core:core:$ANDROIDX_CORE_VERSION" />
+
+        <source-file src="src/android/com/dikstaal/gateway/BootReceiver.java"      target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/GatewayConstants.java"  target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/GatewayPlugin.java"     target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/GatewayService.java"    target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/GatewayHttpServer.java" target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/SimpleJson.java"        target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/SmtpClient.java"        target-dir="src/com/dikstaal/gateway" />
+        <source-file src="src/android/com/dikstaal/gateway/GatewayLog.java"        target-dir="src/com/dikstaal/gateway" />
+    </platform>
+</plugin>

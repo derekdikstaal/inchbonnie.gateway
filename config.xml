@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="nz.co.dikstaal.gateway" version="1.0.0" 
+    xmlns="http://w3.org" 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cdv="http://apache.org">
+    
+    <name>IHS Gateway</name>
+    <description>Inchbonnie Hydro Station Gateway</description>
+    <author email="dev@cordova.apache.org" href="https://apache.org">Apache Cordova Team</author>
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+
+    <platform name="android">
+	
+		<preference name="android-minSdkVersion" value="30" />
+		<preference name="android-targetSdkVersion" value="36" />
+		<preference name="android-compileSdkVersion" value="36" />
+		<preference name="AndroidXEnabled" value="true" />
+        <preference name="KeepRunning" value="true" />
+        <preference name="AndroidWindowSplashScreenBackground" value="#FFFFFF" />
+        <preference name="AndroidWindowSplashScreenIconBackgroundColor" value="#FFFFFF" />
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/splash/splash.png" />
+        
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+
+        <icon density="hdpi" src="res/android/icon/mipmap-hdpi/ic_launcher.png" />
+        <icon density="mdpi" src="res/android/icon/mipmap-mdpi/ic_launcher.png" />
+        <icon density="xhdpi" src="res/android/icon/mipmap-xhdpi/ic_launcher.png" />
+        <icon density="xxhdpi" src="res/android/icon/mipmap-xxhdpi/ic_launcher.png" />
+        <icon density="xxxhdpi" src="res/android/icon/mipmap-xxxhdpi/ic_launcher.png" />
+		
+    </platform>
+</widget>
