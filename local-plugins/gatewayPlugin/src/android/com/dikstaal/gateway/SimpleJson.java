@@ -57,4 +57,33 @@ public final class SimpleJson {
 
         return null;
     }
+
+    public static boolean getBoolean(String json, String key, boolean defaultValue) {
+        if (json == null || key == null) return defaultValue;
+
+        String quotedKey = "\"" + key + "\"";
+        int keyIndex = json.indexOf(quotedKey);
+        if (keyIndex < 0) return defaultValue;
+
+        int colonIndex = json.indexOf(':', keyIndex + quotedKey.length());
+        if (colonIndex < 0) return defaultValue;
+
+        int valueStart = colonIndex + 1;
+        while (valueStart < json.length() && Character.isWhitespace(json.charAt(valueStart))) {
+            valueStart++;
+        }
+
+        if (valueStart >= json.length()) return defaultValue;
+
+        if (json.startsWith("true", valueStart)) return true;
+        if (json.startsWith("false", valueStart)) return false;
+
+        String stringValue = getString(json, key);
+        if (stringValue == null) return defaultValue;
+
+        return "true".equalsIgnoreCase(stringValue.trim())
+                || "1".equals(stringValue.trim())
+                || "yes".equalsIgnoreCase(stringValue.trim());
+    }
+
 }

@@ -9,6 +9,7 @@ public final class GatewayConstants {
     public static final String TAG_BOOT_RECEIVER = "GatewayBootReceiver";
     public static final String TAG_HTTP_SERVER = "GatewayHttpServer";
     public static final String TAG_SERVICE = "GatewayService";
+    public static final String TAG_SMTP_SERVER = "GatewaySmtpServer";
 
     public static final String PLUGIN_ACTION_START = "start";
     public static final String PLUGIN_ACTION_STOP = "stop";
@@ -29,6 +30,12 @@ public final class GatewayConstants {
 
     public static final int DEFAULT_HTTP_PORT = 8080;
     public static final int HTTP_READ_TIMEOUT_MS = 30_000;
+
+    public static final int SMTP_RELAY_PORT = 2525;
+    public static final int SMTP_RELAY_READ_TIMEOUT_MS = 30_000;
+    public static final int SMTP_RELAY_MAX_MESSAGE_BYTES = 256 * 1024;
+    public static final String SMTP_RELAY_USERNAME = "gateway";
+    public static final String SMTP_RELAY_PASSWORD = "gateway";
 
     public static final String PREFS_NAME = "gateway_config";
     public static final String PREF_ENABLED = "gateway_enabled";
@@ -84,6 +91,7 @@ public final class GatewayConstants {
     public static final String JSON_KEY_EMAIL = "email";
     public static final String JSON_KEY_NUMBER = "number";
     public static final String JSON_KEY_MESSAGE = "message";
+    public static final String JSON_KEY_USE_ALERT_RECIPIENTS = "use_alert_recipients";
 
     public static final String LOG_FILE_NAME = "gateway.log";
     public static final int LOG_MAX_READ_BYTES = 64 * 1024;

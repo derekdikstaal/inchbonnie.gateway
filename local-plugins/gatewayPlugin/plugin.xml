@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.dikstaal.gateway"
+    id="cordova-plugin-gateway"
     version="1.0.0">
 
     <name>GatewayPlugin</name>
     <description>Java HTTP/SMS/email gateway Cordova plugin</description>
     <license>MIT</license>
 
-    <js-module src="www/GatewayPlugin.js" name="GatewayPlugin">
+    <js-module src="www/GatewayPlugin.js" name="Gateway">
         <clobbers target="cordova.plugins.GatewayPlugin" />
     </js-module>
 
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="GatewayPlugin">
+            <feature name="Gateway">
                 <param name="android-package" value="com.dikstaal.gateway.GatewayPlugin" />
             </feature>
         </config-file>
@@ -24,7 +24,8 @@
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
             <uses-permission android:name="android.permission.SEND_SMS" />
             <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-            <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+			<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+			<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
             <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
             <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
             <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -36,7 +37,13 @@
                 android:name="com.dikstaal.gateway.GatewayService"
                 android:enabled="true"
                 android:exported="false"
-                android:foregroundServiceType="dataSync" />
+                android:foregroundServiceType="specialUse">
+				<property
+					android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+					android:value="local_http_sms_email_gateway" 
+				/>
+			</service> 
+
             <receiver
                 android:name="com.dikstaal.gateway.BootReceiver"
                 android:enabled="true"

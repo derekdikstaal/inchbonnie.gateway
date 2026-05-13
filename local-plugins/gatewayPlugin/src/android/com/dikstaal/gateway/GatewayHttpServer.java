@@ -268,16 +268,16 @@ public class GatewayHttpServer {
     }
 
     private void handleSendSms(OutputStream output, String body) throws Exception {
-        String number = SimpleJson.getString(body, GatewayConstants.JSON_KEY_NUMBER);
+        String number = clean(SimpleJson.getString(body, GatewayConstants.JSON_KEY_NUMBER));
         String message = SimpleJson.getString(body, GatewayConstants.JSON_KEY_MESSAGE);
+        boolean useAlertRecipients = SimpleJson.getBoolean(
+                body,
+                GatewayConstants.JSON_KEY_USE_ALERT_RECIPIENTS,
+                false
+        );
 
         if (!hasSmsPermission()) {
             writeJson(output, 403, "{\"error\":\"sms_permission_not_granted\"}");
-            return;
-        }
-
-        if (isBlank(number)) {
-            writeJson(output, 400, "{\"error\":\"missing_number\"}");
             return;
         }
 
@@ -286,31 +286,57 @@ public class GatewayHttpServer {
             return;
         }
 
+        String[] recipients;
+        if (useAlertRecipients) {
+            recipients = splitRecipients(getPrefs().getString(GatewayConstants.PREF_ALERT_PHONE, ""));
+            if (recipients.length == 0) {
+                writeJson(output, 400, "{\"error\":\"missing_alert_sms_recipients\"}");
+                return;
+            }
+        } else {
+            if (isBlank(number)) {
+                writeJson(output, 400, "{\"error\":\"missing_number\"}");
+                return;
+            }
+            recipients = new String[]{number};
+        }
+
         try {
-            SmsManager smsManager;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                smsManager = context.getSystemService(SmsManager.class);
-            } else {
-                smsManager = SmsManager.getDefault();
+            SmsManager smsManager = getSmsManager();
+            int sentCount = 0;
+
+            for (String recipient : recipients) {
+                recipient = clean(recipient);
+                if (isBlank(recipient)) {
+                    continue;
+                }
+
+                smsManager.sendTextMessage(recipient, null, message, null, null);
+                sentCount++;
+                GatewayLog.i(context, TAG, "SMS sent to " + recipient
+                        + (useAlertRecipients ? " using alert recipients" : ""));
             }
 
-            smsManager.sendTextMessage(number, null, message, null, null);
-            GatewayLog.i(context, TAG, "Test SMS sent to " + number);
-            writeJson(output, 200, "{\"success\":true}");
+            if (sentCount == 0) {
+                writeJson(output, 400, "{\"error\":\"missing_sms_recipients\"}");
+                return;
+            }
+
+            writeJson(output, 200, "{\"success\":true,\"sent\":" + sentCount + "}");
         } catch (Exception e) {
-            GatewayLog.e(context, TAG, "Test SMS failed", e);
+            GatewayLog.e(context, TAG, "SMS send failed", e);
             writeJson(output, 500, "{\"error\":\"sms_send_failed\"}");
         }
     }
 
     private void handleSendEmail(OutputStream output, String body) throws Exception {
-        String email = SimpleJson.getString(body, GatewayConstants.JSON_KEY_EMAIL);
+        String email = clean(SimpleJson.getString(body, GatewayConstants.JSON_KEY_EMAIL));
         String message = SimpleJson.getString(body, GatewayConstants.JSON_KEY_MESSAGE);
-
-        if (isBlank(email)) {
-            writeJson(output, 400, "{\"error\":\"missing_email\"}");
-            return;
-        }
+        boolean useAlertRecipients = SimpleJson.getBoolean(
+                body,
+                GatewayConstants.JSON_KEY_USE_ALERT_RECIPIENTS,
+                false
+        );
 
         if (isBlank(message)) {
             writeJson(output, 400, "{\"error\":\"missing_message\"}");
@@ -326,12 +352,43 @@ public class GatewayHttpServer {
             return;
         }
 
+        String[] recipients;
+        if (useAlertRecipients) {
+            recipients = splitRecipients(prefs.getString(GatewayConstants.PREF_ALERT_EMAIL, ""));
+            if (recipients.length == 0) {
+                writeJson(output, 400, "{\"error\":\"missing_alert_email_recipients\"}");
+                return;
+            }
+        } else {
+            if (isBlank(email)) {
+                writeJson(output, 400, "{\"error\":\"missing_email\"}");
+                return;
+            }
+            recipients = new String[]{email};
+        }
+
         try {
-            SmtpClient.sendGmail(username, appPassword, email, "HMI Notification", message);
-            GatewayLog.i(context, TAG, "Test email sent to " + email);
-            writeJson(output, 200, "{\"success\":true}");
+            int sentCount = 0;
+            for (String recipient : recipients) {
+                recipient = clean(recipient);
+                if (isBlank(recipient)) {
+                    continue;
+                }
+
+                SmtpClient.sendGmail(username, appPassword, recipient, "HMI Notification", message);
+                sentCount++;
+                GatewayLog.i(context, TAG, "Email sent to " + recipient
+                        + (useAlertRecipients ? " using alert recipients" : ""));
+            }
+
+            if (sentCount == 0) {
+                writeJson(output, 400, "{\"error\":\"missing_email_recipients\"}");
+                return;
+            }
+
+            writeJson(output, 200, "{\"success\":true,\"sent\":" + sentCount + "}");
         } catch (Exception e) {
-            GatewayLog.e(context, TAG, "Test email failed", e);
+            GatewayLog.e(context, TAG, "Email send failed", e);
             writeJson(output, 500, "{\"error\":\"email_send_failed\"}");
         }
     }
@@ -340,6 +397,23 @@ public class GatewayHttpServer {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
                 || context.checkSelfPermission(Manifest.permission.SEND_SMS)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private SmsManager getSmsManager() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            SmsManager manager = context.getSystemService(SmsManager.class);
+            if (manager != null) {
+                return manager;
+            }
+        }
+        return SmsManager.getDefault();
+    }
+
+    private String[] splitRecipients(String value) {
+        if (isBlank(value)) {
+            return new String[0];
+        }
+        return value.split("[\r\n,;]+");
     }
 
     private void writeJson(OutputStream output, int statusCode, String body) throws Exception {
@@ -435,8 +509,8 @@ public class GatewayHttpServer {
                 //+ "<div class='card'><h2>Service</h2><p class='note'>HTTP gateway is running on fixed port 8080.</p><button onclick='loadConfig()'>Refresh Config</button></div>"
                 + "<div class='card'><h2>Alert Settings</h2><p class='note'>Enter multiple recipients separated by commas or new lines.</p><label>Alert SMS Numbers</label><textarea id='alertPhone' placeholder='0211234567, 0217654321'></textarea><label>Alert Emails</label><textarea id='alertEmail' placeholder='alerts@example.com, backup@example.com'></textarea></div>"
                 + "<div class='card'><h2>SMTP Settings</h2><p class='note'>Leave app key blank to keep the currently saved app key.</p><label>Gmail Address</label><input id='smtpEmail' placeholder='youraddress@gmail.com'><label>Gmail App Key</label><input id='smtpKey' type='password' placeholder='New app key or leave blank'><button class='success' onclick='saveConfig()'>Save Settings</button></div>"
-                + "<div class='card'><h2>Test SMS</h2><label>Mobile Number</label><input id='smsNumber'><label>Message</label><textarea id='smsMessage'>Test SMS from gateway</textarea><button onclick='sendSms()'>Send Test SMS</button></div>"
-                + "<div class='card'><h2>Test Email</h2><label>Recipient Email</label><input id='emailTo'><label>Message</label><textarea id='emailMessage'>Test email from gateway</textarea><button onclick='sendEmail()'>Send Test Email</button></div>"
+                + "<div class='card'><h2>Test SMS</h2><p class='note'>Tick to send this message to all configured alert SMS recipients instead of the number below.</p><label><input id='smsUseAlerts' type='checkbox' style='width:auto;margin-right:8px'>Use alert SMS recipients</label><label>Mobile Number</label><input id='smsNumber'><label>Message</label><textarea id='smsMessage'>Test SMS from gateway</textarea><button onclick='sendSms()'>Send Test SMS</button></div>"
+                + "<div class='card'><h2>Test Email</h2><p class='note'>Tick to send this message to all configured alert email recipients instead of the address below.</p><label><input id='emailUseAlerts' type='checkbox' style='width:auto;margin-right:8px'>Use alert email recipients</label><label>Recipient Email</label><input id='emailTo'><label>Message</label><textarea id='emailMessage'>Test email from gateway</textarea><button onclick='sendEmail()'>Send Test Email</button></div>"
                 + "<div class='card'><h2>Logs</h2><p class='note'>Shows the most recent gateway log entries.</p><textarea id='logsBox' readonly style='min-height:260px;font-family:Consolas,monospace;font-size:12px'></textarea><button onclick='loadLogs()'>Refresh Logs</button><button class='danger' onclick='clearLogs()'>Clear Logs</button></div>"
                 + "</div><div id='toast'></div>"
                 + "<script>"
@@ -445,8 +519,8 @@ public class GatewayHttpServer {
                 + "function postJson(url,obj){return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}).then(function(r){return r.text().then(function(t){if(!r.ok)throw new Error(t);return t})})}"
                 + "function loadConfig(){fetch('/config').then(function(r){return r.json()}).then(function(c){setv('alertPhone',c.alert_phone);setv('alertEmail',c.alert_email);setv('smtpEmail',c.smtp_email);toast('Config loaded')}).catch(function(e){toast('Load failed: '+e.message)})}"
                 + "function saveConfig(){postJson('/config',{alert_phone:v('alertPhone'),alert_email:v('alertEmail'),smtp_email:v('smtpEmail'),smtp_app_key:v('smtpKey')}).then(function(){setv('smtpKey','');toast('Settings saved');loadLogs()}).catch(function(e){toast('Save failed: '+e.message);loadLogs()})}"
-                + "function sendSms(){postJson('/send-sms',{number:v('smsNumber'),message:v('smsMessage')}).then(function(){toast('SMS sent');loadLogs()}).catch(function(e){toast('SMS failed: '+e.message);loadLogs()})}"
-                + "function sendEmail(){postJson('/send-email',{email:v('emailTo'),message:v('emailMessage')}).then(function(){toast('Email sent');loadLogs()}).catch(function(e){toast('Email failed: '+e.message);loadLogs()})}"
+                + "function checked(id){return !!document.getElementById(id).checked}function sendSms(){postJson('/send-sms',{number:v('smsNumber'),message:v('smsMessage'),use_alert_recipients:checked('smsUseAlerts')}).then(function(){toast('SMS sent');loadLogs()}).catch(function(e){toast('SMS failed: '+e.message);loadLogs()})}"
+                + "function sendEmail(){postJson('/send-email',{email:v('emailTo'),message:v('emailMessage'),use_alert_recipients:checked('emailUseAlerts')}).then(function(){toast('Email sent');loadLogs()}).catch(function(e){toast('Email failed: '+e.message);loadLogs()})}"
                 + "function loadLogs(){fetch('/logs').then(function(r){return r.json()}).then(function(c){setv('logsBox',c.logs||'')}).catch(function(e){toast('Log load failed: '+e.message)})}function clearLogs(){postJson('/logs/clear',{}).then(function(){toast('Logs cleared');loadLogs()}).catch(function(e){toast('Clear failed: '+e.message)})}document.addEventListener('DOMContentLoaded',function(){loadConfig();loadLogs()});"
                 + "</script></body></html>";
     }

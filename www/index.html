@@ -64,10 +64,11 @@
     }
 
     .note {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
       margin: 0 0 12px;
       line-height: 1.4;
+	  text-align: center;
     }
 
     .field-label {
@@ -118,23 +119,25 @@
       font-size: 20px;
       font-weight: 900;
       margin: 0 0 8px;
+	  text-align: center;
     }
 
     .about-subheading {
       font-size: 16px;
       font-weight: 800;
       margin: 22px 0 8px;
+	  text-align: center;
     }
   </style>
 </head>
 <body>
   <ons-page>
     <ons-toolbar>
-      <div class="center">IHS Gateway Setup</div>
+      <div class="center">IHS Gateway</div>
     </ons-toolbar>
 
     <ons-tabbar swipeable position="bottom">
-      <ons-tab page="settings.html" label="Settings" active></ons-tab>
+      <ons-tab page="settings.html" label="Home" active></ons-tab>
       <ons-tab page="about.html" label="About"></ons-tab>
     </ons-tabbar>
   </ons-page>
@@ -171,19 +174,48 @@
       <div class="content-wrap">
         <section class="card">
           <h1 class="about-heading">About IHS Gateway</h1>
-          <p class="note">Add your app description here.</p>
+          <p class="note"></p>
 
           <h2 class="about-subheading">Purpose</h2>
-          <p>Add content here.</p>
+          <p class="note">The IHS Gateway has been designed specifically to reduce points of failure on getting crucial notifications out from the station to real world recipients.</p>
 
           <h2 class="about-subheading">How It Works</h2>
-          <p>Add content here.</p>
+          <p class="note"><img src="img/ihs.png" alt="" width="300"></p>
 
           <h2 class="about-subheading">Permissions</h2>
-          <p>Add content here.</p>
-
+          <p class="note">
+            [INTERNET]<br>
+            [ACCESS_NETWORK_STATE]<br>
+            [SEND_SMS]<br>
+            [FOREGROUND_SERVICE]<br>
+			[FOREGROUND_SERVICE_LOCATION]<br>
+			[FOREGROUND_SERVICE_SPECIAL_USE]<br>
+            [POST_NOTIFICATIONS]<br>
+            [RECEIVE_BOOT_COMPLETED]<br>
+            [SYSTEM_ALERT_WINDOW]<br>
+            [REQUEST_IGNORE_BATTERY_OPTIMIZATIONS]<br>
+		  </p>
+          <h2 class="about-subheading">Extra Android Settings</h2>
+          <p class="note">
+			Settings->Apps->IHS Gateway<br>Manage app if unused - off<br>
+			Settings->Battery<br>Battery protection - on and set to 80%<br>
+		  </p>
+		  
+          <h2 class="about-subheading">Credits</h2>
+          <p class="note">
+				Apache Cordova&nbsp;&trade;<br>
+				Onsen UI<br>
+				Cordova Plugins:<br>
+				<b>[gatewayPlugin 1.0.0]</b><br>
+		  </p>
+          <h2 class="about-subheading">Developer</h2>
+          <p class="note">
+				Concept, design and code by<br>
+				Derek Dikstaal<br>
+				Waiwera Software 2024<br>
+				<b>[derek.dikstaal@gmail.com]</b><br></p>
           <h2 class="about-subheading">Version</h2>
-          <p>1.0.0</p>
+          <p class="note">1.0.0</p>
         </section>
       </div>
     </ons-page>

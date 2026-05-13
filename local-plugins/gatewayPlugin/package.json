@@ -1,9 +1,9 @@
 {
-  "name": "cordova-plugin-gateway-http",
+  "name": "cordova-plugin-gateway",
   "version": "1.0.0",
   "description": "Minimal Java Cordova plugin providing a foreground HTTP gateway service with SMS sending via HTTP endpoint.",
   "cordova": {
-    "id": "nz.co.dikstaal.gateway",
+    "id": "cordova-plugin-gateway",
     "platforms": [
       "android"
     ]
@@ -15,6 +15,6 @@
     "sms",
     "gateway"
   ],
-  "author": "",
+  "author": "Derek Dikstaal",
   "license": "MIT"
 }
