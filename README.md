@@ -49,11 +49,14 @@ Waiwera Software 2024
 ## Version
 1.0.0
 
-# Reminders
+# Reminders (to self)
 
 ## Port forwarding of current SMTP Server
-
 netsh interface portproxy add v4tov4 listenport=25 listenaddress=0.0.0.0 connectport=2525 connectaddress=192.168.4.24
 netsh interface portproxy delete v4tov4 listenport=25 listenaddress=0.0.0.0
 
+## Cordova Build
+cordova platform add android
+
+cordiva plugin add .\local-plugins\gatewayPlugin
 
